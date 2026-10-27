@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>eFootball Tournament Hub</title>
+<style>
+:root{--bg:#08130f;--panel:#101f19;--panel2:#152820;--line:#294236;--text:#edf7f0;--muted:#9bb5a6;--green:#8df0ad;--green2:#31c76a;--gold:#ffd36b;--red:#ff8585}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top right,#173c2a 0,transparent 40%),var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+.wrap{max-width:1200px;margin:auto;padding:24px 18px 50px}.hero{display:flex;align-items:center;justify-content:space-between;gap:20px;margin:10px 0 24px}.brand{display:flex;align-items:center;gap:14px}.logo{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,var(--green),#25a75a);color:#072111;display:grid;place-items:center;font-size:28px;font-weight:900;box-shadow:0 10px 35px #31c76a2b}.eyebrow{color:var(--green);font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase}.hero h1{margin:2px 0 0;font-size:clamp(25px,4vw,38px);letter-spacing:-1px}.hero p{margin:4px 0 0;color:var(--muted)}.actions{display:flex;gap:8px;flex-wrap:wrap}
+button,.btn{border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:10px;padding:10px 13px;font-weight:700;cursor:pointer}button:hover,.btn:hover{border-color:var(--green);transform:translateY(-1px)}.primary{background:var(--green);color:#062010;border-color:var(--green)}.danger{color:var(--red)}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}.stat,.card{background:linear-gradient(145deg,#13251c,#0e1b15);border:1px solid var(--line);border-radius:16px}.stat{padding:17px 18px}.stat span{display:block;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:1px;font-weight:800}.stat strong{display:block;font-size:28px;margin-top:5px}.stat small{color:var(--green)}.layout{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(290px,1fr);gap:16px}.card{padding:18px;margin-bottom:16px;min-width:0}.card-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:15px}.card h2{font-size:18px;margin:0}.sub{color:var(--muted);font-size:13px;margin-top:4px}.pill{border-radius:999px;padding:5px 9px;background:#203a2b;color:var(--green);font-size:12px;font-weight:800}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;white-space:nowrap;font-variant-numeric:tabular-nums}th{font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);text-align:right;padding:11px 10px;border-bottom:1px solid var(--line)}th:nth-child(2),td:nth-child(2){text-align:left}th:first-child,td:first-child{text-align:center}td{text-align:right;padding:12px 10px;border-bottom:1px solid #20362b}tbody tr:hover{background:#ffffff06}tbody tr:last-child td{border-bottom:0}.rank{display:inline-grid;place-items:center;width:27px;height:27px;border-radius:8px;background:#20392b;font-weight:800}.top1{background:var(--gold);color:#241a00}.player{font-weight:750}.points{color:var(--green);font-weight:900}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{display:flex;flex-direction:column;gap:6px}.field label{font-size:12px;color:var(--muted);font-weight:800}.field input,.field select{width:100%;background:#09150f;border:1px solid var(--line);color:var(--text);border-radius:9px;padding:11px;font:inherit;min-width:0}.score-row{display:grid;grid-template-columns:1fr 64px 20px 64px 1fr;align-items:center;gap:8px;margin:15px 0}.score-row select{width:100%;min-width:0}.score-row input{text-align:center;font-size:21px;font-weight:850;padding:10px 4px}.versus{text-align:center;color:var(--muted);font-weight:900}.form-actions{display:flex;gap:8px;margin-top:12px}.form-actions button{flex:1}.empty{text-align:center;color:var(--muted);padding:25px 10px}.match{display:grid;grid-template-columns:1fr auto;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #20362b}.match:last-child{border:0}.match-names{font-weight:750}.match-score{font-weight:900;font-size:19px;margin:0 8px;color:var(--green)}.match-meta{color:var(--muted);font-size:12px;margin-top:3px}.match-actions{display:flex;gap:6px}.match-actions button{padding:7px 9px;font-size:12px}.note{color:var(--muted);font-size:12px;margin-top:12px}.status{color:var(--green);font-size:12px;min-height:17px;margin-top:8px}.footer{text-align:center;color:#718d7c;font-size:12px;padding-top:8px}
+@media(max-width:800px){.layout{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.hero{align-items:flex-start;flex-direction:column}.actions{width:100%}.actions button{flex:1}.card{padding:14px}}
+@media(max-width:420px){.wrap{padding:16px 10px 35px}.stats{gap:8px}.stat{padding:13px}.stat strong{font-size:24px}.score-row{grid-template-columns:minmax(0,1fr) 48px 15px 48px minmax(0,1fr);gap:5px}.score-row select{font-size:12px;padding:9px 4px}.score-row input{font-size:18px}.brand{align-items:flex-start}.logo{width:48px;height:48px;flex-shrink:0}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="hero">
+ <div class="brand"><div class="logo">⚽</div><div><div class="eyebrow">Season dashboard</div><h1>eFootball Tournament Hub</h1><p>Every match counts. Track results, climb the table.</p></div></div>
+ <div class="actions"><button id="cloudBtn">☁ Connect online</button><button id="exportBtn">Export CSV ↓</button><button id="printBtn">Print table</button><button id="resetBtn" class="danger">Reset season</button></div>
+</header>
+<section class="stats">
+ <div class="stat"><span>Players</span><strong id="playerCount">12</strong><small>Registered competitors</small></div>
+ <div class="stat"><span>Matches played</span><strong id="matchCount">0</strong><small id="matchProgress">0 of 66 league matches</small></div>
+ <div class="stat"><span>Total goals</span><strong id="goalCount">0</strong><small>Across all recorded matches</small></div>
+ <div class="stat"><span>Current leader</span><strong id="leader" style="font-size:22px">—</strong><small id="leaderPoints">0 points</small></div>
+</section>
+<div class="layout">
+ <main>
+  <section class="card">
+   <div class="card-head"><div><h2>League standings</h2><div class="sub">Auto-calculated from saved match results</div></div><span class="pill">WIN 3 · DRAW 1 · LOSS 0</span></div>
+   <div class="table-wrap"><table id="standings"><thead><tr><th>#</th><th>Player</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th></tr></thead><tbody></tbody></table></div>
+   <div class="note">Tie-break order: points → goal difference → goals scored. P=played, GF=goals for, GA=goals against.</div>
+  </section>
+  <section class="card">
+   <div class="card-head"><div><h2>Match history</h2><div class="sub">Edit or delete any result to correct the table.</div></div><span class="pill" id="historyCount">0 results</span></div>
+   <div id="matchHistory"><div class="empty">No matches yet. Add your first result on the right.</div></div>
+  </section>
+ </main>
+ <aside>
+  <section class="card" id="entryCard">
+   <div class="card-head"><div><h2 id="formTitle">Record a match</h2><div class="sub">Enter the final score after a game.</div></div><span class="pill">LIVE</span></div>
+   <form id="matchForm">
+    <div class="form-grid">
+     <div class="field"><label for="matchDate">MATCH DATE</label><input id="matchDate" type="date" required></div>
+     <div class="field"><label for="matchNote">NOTE (OPTIONAL)</label><input id="matchNote" type="text" placeholder="e.g. Matchday 1"></div>
+    </div>
+    <div class="score-row">
+     <select id="player1" aria-label="Player one"></select>
+     <input id="score1" type="number" min="0" max="99" value="0" required aria-label="Player one goals">
+     <span class="versus">:</span>
+     <input id="score2" type="number" min="0" max="99" value="0" required aria-label="Player two goals">
+     <select id="player2" aria-label="Player two"></select>
+    </div>
+    <div class="form-actions"><button class="primary" type="submit" id="saveBtn">＋ Save result</button><button type="button" id="cancelEdit" hidden>Cancel</button></div>
+    <div id="formStatus" class="status" role="status"></div>
+   </form>
+   <div class="note">Tip: use the same date and player names as the actual match. Scores cannot be negative.</div>
+  </section>
+  <section class="card">
+   <div class="card-head"><div><h2>Tournament rules</h2><div class="sub">Default 12-player league</div></div></div>
+   <div style="display:grid;gap:11px">
+    <div><b>🏆 Win</b> <span style="float:right;color:var(--green);font-weight:800">3 points</span></div>
+    <div><b>🤝 Draw</b> <span style="float:right;color:var(--green);font-weight:800">1 point each</span></div>
+    <div><b>❌ Loss</b> <span style="float:right;color:var(--green);font-weight:800">0 points</span></div>
+    <div><b>📈 Goal difference</b><span style="float:right;color:var(--muted)">GF − GA</span></div>
+   </div>
+   <div class="note">Results are saved in this browser on this device. Use Export CSV to keep a backup or share results.</div>
+  </section>
+ </aside>
+</div>
+<div class="footer" id="syncFooter">eFootball Tournament Hub · Local browser mode</div>
+<div id="cloudModal" style="display:none;position:fixed;inset:0;background:#000b;z-index:10;padding:16px;overflow:auto">
+ <div class="card" style="max-width:560px;margin:8vh auto;background:#102019">
+  <div class="card-head"><div><h2>Connect shared online database</h2><div class="sub">One-time setup using Supabase</div></div><button id="closeCloud">✕</button></div>
+  <p class="sub">Create a Supabase project, run the included <b>supabase_schema.sql</b> in SQL Editor, then paste your project URL and anon/public key below. All visitors using the same settings will see the same match results.</p>
+  <div class="field" style="margin:12px 0"><label for="sbUrl">SUPABASE PROJECT URL</label><input id="sbUrl" placeholder="https://your-project.supabase.co"></div>
+  <div class="field" style="margin:12px 0"><label for="sbKey">SUPABASE ANON / PUBLISHABLE KEY</label><input id="sbKey" placeholder="sb_publishable_… or anon JWT" autocomplete="off"></div>
+  <div class="form-actions"><button id="connectCloud" class="primary">Connect & sync</button><button id="localMode">Use local mode</button></div>
+  <div id="cloudStatus" class="status" role="status"></div>
+  <p class="note">Security note: the included starter schema allows anyone with the app configuration to add, edit, or delete results. Do not put secrets or personal information here. For organizer-only editing, add Supabase Auth and stricter policies before sharing publicly.</p>
+ </div>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const players = ["Mishal","Sham","Sanay","Bilal","Najmu","Ali","Shiyas","Shafin","Nihal","Sabith","Anzil","Nafih"];
+const KEY = "efootball_tournament_hub_v1";
+const CFGKEY = "efootball_supabase_config_v1";
+let matches = [];
+let editingId = null;
+let supabaseClient = null;
+let cloudMode = false;
+let cloudChannel = null;
+try { matches = JSON.parse(localStorage.getItem(KEY) || "[]"); if (!Array.isArray(matches)) matches=[]; } catch { matches=[]; }
+function mapCloud(row){ return {id:row.id, date:row.match_date||"", p1:row.player1, p2:row.player2, s1:row.score1, s2:row.score2, note:row.note||"", created:new Date(row.created_at||Date.now()).getTime()}; }
+function mapDb(m){ return {id:m.id, match_date:m.date||null, player1:m.p1, player2:m.p2, score1:Number(m.s1), score2:Number(m.s2), note:m.note||""}; }
+function setSyncStatus(msg, ok=true){ $("syncFooter").textContent = "eFootball Tournament Hub · " + msg; $("syncFooter").style.color=ok?"var(--green)":"var(--red)"; }
+async function loadCloud(){
+ const {data,error}=await supabaseClient.from("matches").select("*").order("created_at",{ascending:true});
+ if(error) throw error;
+ matches=(data||[]).map(mapCloud); localStorage.setItem(KEY,JSON.stringify(matches)); render();
+}
+async function syncCloudRealtime(){
+ if(cloudChannel) await supabaseClient.removeChannel(cloudChannel);
+ cloudChannel=supabaseClient.channel("efootball-live-matches").on("postgres_changes",{event:"*",schema:"public",table:"matches"},()=>loadCloud().catch(e=>setSyncStatus("Sync error: "+e.message,false))).subscribe();
+}
+async function connectOnline(url,key){
+ if(!window.supabase){throw new Error("Could not load Supabase SDK. Check your internet connection and refresh.");}
+ const client=window.supabase.createClient(url,key);
+ const {error}=await client.from("matches").select("id").limit(1);
+ if(error) throw error;
+ supabaseClient=client; cloudMode=true;
+ localStorage.setItem(CFGKEY,JSON.stringify({url,key}));
+ await loadCloud(); await syncCloudRealtime(); setSyncStatus("Online · shared live standings");
+ $("cloudModal").style.display="none"; $("cloudBtn").textContent="☁ Online connected";
+}
+
+const $ = id => document.getElementById(id);
+const today = new Date(); const localDate = new Date(today.getTime()-today.getTimezoneOffset()*60000).toISOString().slice(0,10);
+$("matchDate").value = localDate;
+function populatePlayers(){
+ for(const id of ["player1","player2"]){
+  $(id).innerHTML = players.map(p=>`<option value="${p}">${p}</option>`).join("");
+ }
+ $("player2").value="Sham";
+}
+function persist(){localStorage.setItem(KEY,JSON.stringify(matches));render();}
+async function saveRecordCloud(record,isEdit){
+ const row=mapDb(record);
+ const result=isEdit?await supabaseClient.from("matches").update(row).eq("id",record.id):await supabaseClient.from("matches").insert(row);
+ if(result.error) throw result.error;
+ await loadCloud();
+}
+async function deleteRecordCloud(id){
+ const {error}=await supabaseClient.from("matches").delete().eq("id",id);
+ if(error) throw error;
+ await loadCloud();
+}
+function standings(){
+ const s = Object.fromEntries(players.map(name=>[name,{name,p:0,w:0,d:0,l:0,gf:0,ga:0,gd:0,pts:0}]));
+ matches.forEach(m=>{
+  if(!s[m.p1]||!s[m.p2]||m.p1===m.p2||!Number.isFinite(+m.s1)||!Number.isFinite(+m.s2))return;
+  const a=s[m.p1],b=s[m.p2],x=+m.s1,y=+m.s2;
+  a.p++;b.p++;a.gf+=x;a.ga+=y;b.gf+=y;b.ga+=x;
+  if(x>y){a.w++;a.pts+=3;b.l++}else if(x<y){b.w++;b.pts+=3;a.l++}else{a.d++;b.d++;a.pts++;b.pts++}
+ });
+ Object.values(s).forEach(a=>{a.gd=a.gf-a.ga;a.pts=a.pts;});
+ return Object.values(s).sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf||a.name.localeCompare(b.name));
+}
+function escapeHtml(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function render(){
+ const table=standings();
+ $("playerCount").textContent=players.length;
+ $("matchCount").textContent=matches.length;
+ $("matchProgress").textContent=`${matches.length} recorded · 66 possible league fixtures`;
+ $("goalCount").textContent=matches.reduce((n,m)=>n+(+m.s1||0)+(+m.s2||0),0);
+ $("leader").textContent=table[0]?.pts>0?table[0].name:"—";
+ $("leaderPoints").textContent=table[0]?.pts>0?`${table[0].pts} points`:"No leader yet";
+ $("standings").querySelector("tbody").innerHTML=table.map((p,i)=>`<tr><td><span class="rank ${i===0&&p.pts>0?'top1':''}">${i+1}</span></td><td class="player">${escapeHtml(p.name)}</td><td>${p.p}</td><td>${p.w}</td><td>${p.d}</td><td>${p.l}</td><td>${p.gf}</td><td>${p.ga}</td><td style="color:${p.gd>0?'var(--green)':p.gd<0?'var(--red)':'var(--muted)'}">${p.gd>0?'+':''}${p.gd}</td><td class="points">${p.pts}</td></tr>`).join("");
+ $("historyCount").textContent=`${matches.length} result${matches.length===1?"":"s"}`;
+ const sorted=[...matches].sort((a,b)=>(b.date||"").localeCompare(a.date||"")||b.created-a.created);
+ $("matchHistory").innerHTML=sorted.length?sorted.map(m=>`<div class="match"><div><div class="match-names">${escapeHtml(m.p1)} <span class="match-score">${m.s1} – ${m.s2}</span>${escapeHtml(m.p2)}</div><div class="match-meta">${escapeHtml(m.date||"No date")}${m.note?" · "+escapeHtml(m.note):""}</div></div><div class="match-actions"><button data-edit="${m.id}" aria-label="Edit match">Edit</button><button class="danger" data-delete="${m.id}" aria-label="Delete match">✕</button></div></div>`).join(""):`<div class="empty">No matches yet. Add your first result on the right.</div>`;
+}
+$("matchForm").addEventListener("submit",e=>{
+ e.preventDefault();
+ const p1=$("player1").value,p2=$("player2").value,s1=Number($("score1").value),s2=Number($("score2").value);
+ if(p1===p2){$("formStatus").textContent="Choose two different players.";return;}
+ if(!Number.isInteger(s1)||!Number.isInteger(s2)||s1<0||s2<0||s1>99||s2>99){$("formStatus").textContent="Scores must be whole numbers from 0 to 99.";return;}
+ const record={id:editingId||`${Date.now()}-${Math.random().toString(16).slice(2)}`,date:$("matchDate").value,p1,p2,s1,s2,note:$("matchNote").value.trim(),created:editingId?(matches.find(m=>m.id===editingId)?.created||Date.now()):Date.now()};
+ if(editingId){matches=matches.map(m=>m.id===editingId?record:m);}else{matches.push(record);}
+ if(cloudMode){saveRecordCloud(record,!!editingId).then(()=>{$("formStatus").textContent="Result saved online. Everyone's standings are updated!";}).catch(err=>{$("formStatus").textContent="Online save failed: "+err.message;setSyncStatus("Online save failed",false);});}
+ else {persist();$("formStatus").textContent="Result saved locally. Standings updated!";}
+ resetForm();
+});
+function resetForm(){editingId=null;$("matchForm").reset();$("matchDate").value=localDate;$("score1").value=0;$("score2").value=0;$("player1").value="Mishal";$("player2").value="Sham";$("formTitle").textContent="Record a match";$("saveBtn").textContent="＋ Save result";$("cancelEdit").hidden=true;}
+$("cancelEdit").addEventListener("click",()=>{resetForm();$("formStatus").textContent="Edit cancelled.";});
+$("matchHistory").addEventListener("click",e=>{
+ const edit=e.target.closest("[data-edit]");const del=e.target.closest("[data-delete]");
+ if(edit){const m=matches.find(x=>x.id===edit.dataset.edit);if(!m)return;editingId=m.id;$("matchDate").value=m.date||localDate;$("matchNote").value=m.note||"";$("player1").value=m.p1;$("player2").value=m.p2;$("score1").value=m.s1;$("score2").value=m.s2;$("formTitle").textContent="Edit match result";$("saveBtn").textContent="Save changes";$("cancelEdit").hidden=false;$("formStatus").textContent="";$("entryCard").scrollIntoView({behavior:"smooth",block:"start"});}
+ if(del){const m=matches.find(x=>x.id===del.dataset.delete);if(m&&confirm(`Delete ${m.p1} ${m.s1}–${m.s2} ${m.p2}?`)){
+  if(cloudMode){deleteRecordCloud(m.id).catch(err=>{alert("Online delete failed: "+err.message);setSyncStatus("Online delete failed",false);});}
+  else {matches=matches.filter(x=>x.id!==m.id);persist();}
+  if(editingId===m.id)resetForm();
+ }}
+});
+$("resetBtn").addEventListener("click",async()=>{if(confirm(cloudMode?"Delete ALL shared online match results for everyone? This cannot be undone unless backed up.":"Delete ALL recorded match results from this browser? This cannot be undone unless backed up.")){
+ try {if(cloudMode){const {error}=await supabaseClient.from("matches").delete().neq("id","00000000-0000-0000-0000-000000000000");if(error)throw error;await loadCloud();}else{matches=[];persist();}resetForm();$("formStatus").textContent="Season reset.";}
+ catch(err){alert("Reset failed: "+err.message);}
+ }});
+$("exportBtn").addEventListener("click",()=>{
+ const rows=[["Date","Player 1","Goals 1","Goals 2","Player 2","Note"],...matches.map(m=>[m.date,m.p1,m.s1,m.s2,m.p2,m.note])];
+ const csv=rows.map(r=>r.map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(",")).join("\r\n");
+ const blob=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8;"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="efootball-match-results.csv";a.click();URL.revokeObjectURL(url);
+});
+$("printBtn").addEventListener("click",()=>window.print());
+$("cloudBtn").addEventListener("click",()=>{$("cloudModal").style.display="block";$("cloudStatus").textContent="";});
+$("closeCloud").addEventListener("click",()=>$("cloudModal").style.display="none");
+$("localMode").addEventListener("click",()=>{$("cloudModal").style.display="none";cloudMode=false;if(cloudChannel&&supabaseClient){supabaseClient.removeChannel(cloudChannel);cloudChannel=null;}setSyncStatus("Local browser mode");render();});
+$("connectCloud").addEventListener("click",async()=>{
+ const url=$("sbUrl").value.trim(),key=$("sbKey").value.trim();
+ if(!/^https:\/\//.test(url)||!key){$("cloudStatus").textContent="Enter a valid project URL and public anon/publishable key.";return;}
+ $("cloudStatus").textContent="Connecting…";
+ try{await connectOnline(url,key);$("cloudStatus").textContent="Connected!";}catch(err){$("cloudStatus").textContent="Connection failed: "+err.message;}
+});
+try{const cfg=JSON.parse(localStorage.getItem(CFGKEY)||"null");if(cfg){$("sbUrl").value=cfg.url;$("sbKey").value=cfg.key;connectOnline(cfg.url,cfg.key).catch(err=>setSyncStatus("Offline/local fallback: "+err.message,false));}}catch{}
+populatePlayers();$("player1").value="Mishal";$("player2").value="Sham";render();
+</script>
+</body>
+</html>
