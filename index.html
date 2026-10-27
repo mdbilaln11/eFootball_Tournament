@@ -94,7 +94,7 @@ let cloudMode = false;
 let cloudChannel = null;
 try { matches = JSON.parse(localStorage.getItem(KEY) || "[]"); if (!Array.isArray(matches)) matches=[]; } catch { matches=[]; }
 function mapCloud(row){ return {id:row.id, date:row.match_date||"", p1:row.player1, p2:row.player2, s1:row.score1, s2:row.score2, note:row.note||"", created:new Date(row.created_at||Date.now()).getTime()}; }
-function mapDb(m){ return {id:m.id, match_date:m.date||null, player1:m.p1, player2:m.p2, score1:Number(m.s1), score2:Number(m.s2), note:m.note||""}; }
+function mapDb(m){ return {match_date:m.date||null, player1:m.p1, player2:m.p2, score1:Number(m.s1), score2:Number(m.s2), note:m.note||""}; }
 function setSyncStatus(msg, ok=true){ $("syncFooter").textContent = "eFootball Tournament Hub · " + msg; $("syncFooter").style.color=ok?"var(--green)":"var(--red)"; }
 async function loadCloud(){
  const {data,error}=await supabaseClient.from("matches").select("*").order("created_at",{ascending:true});
@@ -167,7 +167,7 @@ $("matchForm").addEventListener("submit",e=>{
  const p1=$("player1").value,p2=$("player2").value,s1=Number($("score1").value),s2=Number($("score2").value);
  if(p1===p2){$("formStatus").textContent="Choose two different players.";return;}
  if(!Number.isInteger(s1)||!Number.isInteger(s2)||s1<0||s2<0||s1>99||s2>99){$("formStatus").textContent="Scores must be whole numbers from 0 to 99.";return;}
- const record={id:editingId||`${Date.now()}-${Math.random().toString(16).slice(2)}`,date:$("matchDate").value,p1,p2,s1,s2,note:$("matchNote").value.trim(),created:editingId?(matches.find(m=>m.id===editingId)?.created||Date.now()):Date.now()};
+ const record={id:editingId||crypto.randomUUID(),date:$("matchDate").value,p1,p2,s1,s2,note:$("matchNote").value.trim(),created:editingId?(matches.find(m=>m.id===editingId)?.created||Date.now()):Date.now()};
  if(editingId){matches=matches.map(m=>m.id===editingId?record:m);}else{matches.push(record);}
  if(cloudMode){saveRecordCloud(record,!!editingId).then(()=>{$("formStatus").textContent="Result saved online. Everyone's standings are updated!";}).catch(err=>{$("formStatus").textContent="Online save failed: "+err.message;setSyncStatus("Online save failed",false);});}
  else {persist();$("formStatus").textContent="Result saved locally. Standings updated!";}
