@@ -17,7 +17,7 @@ button,.btn{border:1px solid var(--line);background:var(--panel2);color:var(--te
 <div class="wrap">
 <header class="hero">
  <div class="brand"><div class="logo">⚽</div><div><div class="eyebrow">Season dashboard</div><h1>eFootball Tournament Hub</h1><p>Every match counts. Track results, climb the table.</p></div></div>
- <div class="actions"><button id="cloudBtn">☁ Connect online</button><button id="exportBtn">Export CSV ↓</button><button id="printBtn">Print table</button><button id="resetBtn" class="danger">Reset season</button></div>
+ <div class="actions"><button id="cloudBtn">☁ Connect online</button><button id="adminBtn">🔐 Admin login</button><button id="exportBtn">Export CSV ↓</button><button id="printBtn">Print table</button><button id="resetBtn" class="danger" hidden>Reset season</button></div>
 </header>
 <section class="stats">
  <div class="stat"><span>Players</span><strong id="playerCount">12</strong><small>Registered competitors</small></div>
@@ -38,7 +38,7 @@ button,.btn{border:1px solid var(--line);background:var(--panel2);color:var(--te
   </section>
  </main>
  <aside>
-  <section class="card" id="entryCard">
+  <section class="card" id="entryCard" hidden>
    <div class="card-head"><div><h2 id="formTitle">Record a match</h2><div class="sub">Enter the final score after a game.</div></div><span class="pill">LIVE</span></div>
    <form id="matchForm">
     <div class="form-grid">
@@ -81,6 +81,18 @@ button,.btn{border:1px solid var(--line);background:var(--panel2);color:var(--te
   <p class="note">Security note: the included starter schema allows anyone with the app configuration to add, edit, or delete results. Do not put secrets or personal information here. For organizer-only editing, add Supabase Auth and stricter policies before sharing publicly.</p>
  </div>
 </div>
+<div id="adminModal" style="display:none;position:fixed;inset:0;background:#000b;z-index:11;padding:16px;overflow:auto">
+ <div class="card" style="max-width:460px;margin:12vh auto;background:#102019">
+  <div class="card-head"><div><h2>Organizer login</h2><div class="sub">Only the tournament admin can change results.</div></div><button id="closeAdmin">✕</button></div>
+  <form id="adminLoginForm">
+   <div class="field" style="margin:12px 0"><label for="adminEmail">ADMIN EMAIL</label><input id="adminEmail" type="email" autocomplete="username" required placeholder="you@example.com"></div>
+   <div class="field" style="margin:12px 0"><label for="adminPassword">PASSWORD</label><input id="adminPassword" type="password" autocomplete="current-password" required placeholder="Supabase Auth password"></div>
+   <div class="form-actions"><button class="primary" type="submit" id="adminLoginSubmit">Log in</button><button type="button" id="adminLogout" hidden>Log out</button></div>
+  </form>
+  <div id="adminStatus" class="status" role="status"></div>
+  <p class="note">Create the organizer account in Supabase Authentication, and disable public sign-ups so visitors cannot create accounts.</p>
+ </div>
+</div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -92,6 +104,8 @@ let editingId = null;
 let supabaseClient = null;
 let cloudMode = false;
 let cloudChannel = null;
+let isAdmin = false;
+let authSubscription = null;
 try { matches = JSON.parse(localStorage.getItem(KEY) || "[]"); if (!Array.isArray(matches)) matches=[]; } catch { matches=[]; }
 function mapCloud(row){ return {id:row.id, date:row.match_date||"", p1:row.player1, p2:row.player2, s1:row.score1, s2:row.score2, note:row.note||"", created:new Date(row.created_at||Date.now()).getTime()}; }
 function mapDb(m){ return {match_date:m.date||null, player1:m.p1, player2:m.p2, score1:Number(m.s1), score2:Number(m.s2), note:m.note||""}; }
@@ -111,6 +125,10 @@ async function connectOnline(url,key){
  const {error}=await client.from("matches").select("id").limit(1);
  if(error) throw error;
  supabaseClient=client; cloudMode=true;
+ const {data:sessionData}=await client.auth.getSession();
+ isAdmin=!!sessionData?.session?.user;
+ if(authSubscription?.data?.subscription) authSubscription.data.subscription.unsubscribe();
+ authSubscription=client.auth.onAuthStateChange((_event,session)=>{isAdmin=!!session?.user;updateAdminUI();render();});
  localStorage.setItem(CFGKEY,JSON.stringify({url,key}));
  await loadCloud(); await syncCloudRealtime(); setSyncStatus("Online · shared live standings");
  $("cloudModal").style.display="none"; $("cloudBtn").textContent="☁ Online connected";
@@ -149,6 +167,15 @@ function standings(){
  return Object.values(s).sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf||a.name.localeCompare(b.name));
 }
 function escapeHtml(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function updateAdminUI(){
+ const canEdit=cloudMode && isAdmin;
+ $("entryCard").hidden=!canEdit;
+ $("resetBtn").hidden=!canEdit;
+ $("adminBtn").textContent=canEdit?"🔓 Admin logged in":"🔐 Admin login";
+ $("adminLogout").hidden=!isAdmin;
+ $("adminLoginSubmit").hidden=isAdmin;
+ $("adminEmail").disabled=isAdmin; $("adminPassword").disabled=isAdmin;
+}
 function render(){
  const table=standings();
  $("playerCount").textContent=players.length;
@@ -160,25 +187,24 @@ function render(){
  $("standings").querySelector("tbody").innerHTML=table.map((p,i)=>`<tr><td><span class="rank ${i===0&&p.pts>0?'top1':''}">${i+1}</span></td><td class="player">${escapeHtml(p.name)}</td><td>${p.p}</td><td>${p.w}</td><td>${p.d}</td><td>${p.l}</td><td>${p.gf}</td><td>${p.ga}</td><td style="color:${p.gd>0?'var(--green)':p.gd<0?'var(--red)':'var(--muted)'}">${p.gd>0?'+':''}${p.gd}</td><td class="points">${p.pts}</td></tr>`).join("");
  $("historyCount").textContent=`${matches.length} result${matches.length===1?"":"s"}`;
  const sorted=[...matches].sort((a,b)=>(b.date||"").localeCompare(a.date||"")||b.created-a.created);
- $("matchHistory").innerHTML=sorted.length?sorted.map(m=>`<div class="match"><div><div class="match-names">${escapeHtml(m.p1)} <span class="match-score">${m.s1} – ${m.s2}</span>${escapeHtml(m.p2)}</div><div class="match-meta">${escapeHtml(m.date||"No date")}${m.note?" · "+escapeHtml(m.note):""}</div></div><div class="match-actions"><button data-edit="${m.id}" aria-label="Edit match">Edit</button><button class="danger" data-delete="${m.id}" aria-label="Delete match">✕</button></div></div>`).join(""):`<div class="empty">No matches yet. Add your first result on the right.</div>`;
+ $("matchHistory").innerHTML=sorted.length?sorted.map(m=>`<div class="match"><div><div class="match-names">${escapeHtml(m.p1)} <span class="match-score">${m.s1} – ${m.s2}</span>${escapeHtml(m.p2)}</div><div class="match-meta">${escapeHtml(m.date||"No date")}${m.note?" · "+escapeHtml(m.note):""}</div></div><div class="match-actions">${cloudMode&&isAdmin?`<button data-edit="${m.id}" aria-label="Edit match">Edit</button><button class="danger" data-delete="${m.id}" aria-label="Delete match">✕</button>`:""}</div></div>`).join(""):`<div class="empty">No matches yet. Add your first result on the right.</div>`;
 }
 $("matchForm").addEventListener("submit",e=>{
  e.preventDefault();
+ if(!cloudMode || !isAdmin){$("formStatus").textContent="Only the logged-in admin can save results. Connect online and log in.";return;}
  const p1=$("player1").value,p2=$("player2").value,s1=Number($("score1").value),s2=Number($("score2").value);
  if(p1===p2){$("formStatus").textContent="Choose two different players.";return;}
  if(!Number.isInteger(s1)||!Number.isInteger(s2)||s1<0||s2<0||s1>99||s2>99){$("formStatus").textContent="Scores must be whole numbers from 0 to 99.";return;}
  const record={id:editingId||crypto.randomUUID(),date:$("matchDate").value,p1,p2,s1,s2,note:$("matchNote").value.trim(),created:editingId?(matches.find(m=>m.id===editingId)?.created||Date.now()):Date.now()};
- if(editingId){matches=matches.map(m=>m.id===editingId?record:m);}else{matches.push(record);}
  if(cloudMode){saveRecordCloud(record,!!editingId).then(()=>{$("formStatus").textContent="Result saved online. Everyone's standings are updated!";}).catch(err=>{$("formStatus").textContent="Online save failed: "+err.message;setSyncStatus("Online save failed",false);});}
- else {persist();$("formStatus").textContent="Result saved locally. Standings updated!";}
  resetForm();
 });
 function resetForm(){editingId=null;$("matchForm").reset();$("matchDate").value=localDate;$("score1").value=0;$("score2").value=0;$("player1").value="Mishal";$("player2").value="Sham";$("formTitle").textContent="Record a match";$("saveBtn").textContent="＋ Save result";$("cancelEdit").hidden=true;}
 $("cancelEdit").addEventListener("click",()=>{resetForm();$("formStatus").textContent="Edit cancelled.";});
 $("matchHistory").addEventListener("click",e=>{
  const edit=e.target.closest("[data-edit]");const del=e.target.closest("[data-delete]");
- if(edit){const m=matches.find(x=>x.id===edit.dataset.edit);if(!m)return;editingId=m.id;$("matchDate").value=m.date||localDate;$("matchNote").value=m.note||"";$("player1").value=m.p1;$("player2").value=m.p2;$("score1").value=m.s1;$("score2").value=m.s2;$("formTitle").textContent="Edit match result";$("saveBtn").textContent="Save changes";$("cancelEdit").hidden=false;$("formStatus").textContent="";$("entryCard").scrollIntoView({behavior:"smooth",block:"start"});}
- if(del){const m=matches.find(x=>x.id===del.dataset.delete);if(m&&confirm(`Delete ${m.p1} ${m.s1}–${m.s2} ${m.p2}?`)){
+ if(edit){if(!cloudMode||!isAdmin){alert("Only the tournament admin can edit results.");return;}const m=matches.find(x=>x.id===edit.dataset.edit);if(!m)return;editingId=m.id;$("matchDate").value=m.date||localDate;$("matchNote").value=m.note||"";$("player1").value=m.p1;$("player2").value=m.p2;$("score1").value=m.s1;$("score2").value=m.s2;$("formTitle").textContent="Edit match result";$("saveBtn").textContent="Save changes";$("cancelEdit").hidden=false;$("formStatus").textContent="";$("entryCard").scrollIntoView({behavior:"smooth",block:"start"});}
+ if(del){if(!cloudMode||!isAdmin){alert("Only the tournament admin can delete results.");return;}const m=matches.find(x=>x.id===del.dataset.delete);if(m&&confirm(`Delete ${m.p1} ${m.s1}–${m.s2} ${m.p2}?`)){
   if(cloudMode){deleteRecordCloud(m.id).catch(err=>{alert("Online delete failed: "+err.message);setSyncStatus("Online delete failed",false);});}
   else {matches=matches.filter(x=>x.id!==m.id);persist();}
   if(editingId===m.id)resetForm();
@@ -194,9 +220,23 @@ $("exportBtn").addEventListener("click",()=>{
  const blob=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8;"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="efootball-match-results.csv";a.click();URL.revokeObjectURL(url);
 });
 $("printBtn").addEventListener("click",()=>window.print());
+$("adminBtn").addEventListener("click",()=>{$("adminModal").style.display="block";$("adminStatus").textContent="";});
+$("closeAdmin").addEventListener("click",()=>{$("adminModal").style.display="none";});
+$("adminLoginForm").addEventListener("submit",async e=>{
+ e.preventDefault();
+ if(!supabaseClient){$("adminStatus").textContent="Connect the online database first.";return;}
+ $("adminStatus").textContent="Signing in…";
+ const {error}=await supabaseClient.auth.signInWithPassword({email:$("adminEmail").value.trim(),password:$("adminPassword").value});
+ if(error){$("adminStatus").textContent="Login failed: "+error.message;return;}
+ $("adminStatus").textContent="Admin login successful.";
+});
+$("adminLogout").addEventListener("click",async()=>{
+ if(supabaseClient){const {error}=await supabaseClient.auth.signOut();if(error){$("adminStatus").textContent="Logout failed: "+error.message;return;}}
+ isAdmin=false;updateAdminUI();render();$("adminStatus").textContent="Logged out.";
+});
 $("cloudBtn").addEventListener("click",()=>{$("cloudModal").style.display="block";$("cloudStatus").textContent="";});
 $("closeCloud").addEventListener("click",()=>$("cloudModal").style.display="none");
-$("localMode").addEventListener("click",()=>{$("cloudModal").style.display="none";cloudMode=false;if(cloudChannel&&supabaseClient){supabaseClient.removeChannel(cloudChannel);cloudChannel=null;}setSyncStatus("Local browser mode");render();});
+$("localMode").addEventListener("click",()=>{$("cloudModal").style.display="none";cloudMode=false;isAdmin=false;updateAdminUI();if(cloudChannel&&supabaseClient){supabaseClient.removeChannel(cloudChannel);cloudChannel=null;}setSyncStatus("Local browser mode");render();});
 $("connectCloud").addEventListener("click",async()=>{
  const url=$("sbUrl").value.trim(),key=$("sbKey").value.trim();
  if(!/^https:\/\//.test(url)||!key){$("cloudStatus").textContent="Enter a valid project URL and public anon/publishable key.";return;}
@@ -204,7 +244,7 @@ $("connectCloud").addEventListener("click",async()=>{
  try{await connectOnline(url,key);$("cloudStatus").textContent="Connected!";}catch(err){$("cloudStatus").textContent="Connection failed: "+err.message;}
 });
 try{const cfg=JSON.parse(localStorage.getItem(CFGKEY)||"null");if(cfg){$("sbUrl").value=cfg.url;$("sbKey").value=cfg.key;connectOnline(cfg.url,cfg.key).catch(err=>setSyncStatus("Offline/local fallback: "+err.message,false));}}catch{}
-populatePlayers();$("player1").value="Mishal";$("player2").value="Sham";render();
+populatePlayers();$("player1").value="Mishal";$("player2").value="Sham";updateAdminUI();render();
 </script>
 </body>
 </html>
